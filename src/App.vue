@@ -1,26 +1,42 @@
 <template>
-  <img alt="Vue logo" src="./assets/logo.png">
-  <HelloWorld msg="Welcome to Your Vue.js App"/>
+  <div>
+    <img src="./assets/logo_tft.png" alt="logo" id="logo">
+  </div>
+  <div>
+    <ChampionsTab/>
+  </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+import ChampionsTab from './components/ChampionsTab.vue'
 
 export default {
   name: 'App',
   components: {
-    HelloWorld
+    ChampionsTab
   }
 }
 </script>
 
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300&display=swap');
+
+body{
+  background-color: rgb(41, 55, 59);
+}
+
 #app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 2rem;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
+  margin-top: 1.5em;
+  color: white;
+}
+
+#logo {
+  width: 30%;
+  filter: drop-shadow(5px 5px 5px #222);
 }
 </style>
