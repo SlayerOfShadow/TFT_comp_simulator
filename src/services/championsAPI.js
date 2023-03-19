@@ -1,8 +1,10 @@
-function getChampionsData() {
-    return [
-        {id:0, name:"Darius", pictureUrl:require("@/assets/logo.png")},
-        {id:1, name:"Garen", pictureUrl:require("@/assets/logo.png")}
-    ]
+async function getTftData(){
+        
+    let res = await fetch('https://raw.communitydragon.org/13.5/cdragon/tft/en_us.json');
+    if(res.status != 200) {
+        throw new Error("Something went wrong!");
+    }
+    return res.json();
 }
 
-export { getChampionsData }
+export { getTftData }
