@@ -52,11 +52,9 @@ export default {
 .ChampionsTab {
   border: 0.25em solid rgb(33, 44, 48);
   background-color: rgb(27, 37, 39);
-  margin: 1em;
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  align-content: flex-start;
 }
 
 .Card:hover {

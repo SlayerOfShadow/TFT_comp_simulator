@@ -4,7 +4,7 @@
   </div>
   <div class="Tabs">
     <div class="AllChampionsTab">
-      <ChampionsTab :cards="cards" @card-selected="addToSelected" :title="'Champions'" :searchTerm="searchTerm"/>
+      <ChampionsTab class="Tab1" :cards="cards" @card-selected="addToSelected" :title="'Champions'" :searchTerm="searchTerm"/>
       <div class="Buttons">
         <button :class="{ active: sortBy === 'name' }" @click="orderCardsByName">A-Z</button>
         <button :class="{ active: sortBy === 'cost' }" @click="orderCardsByCost">Cost</button>
@@ -13,16 +13,13 @@
       </div>
     </div>
     <div class="SelectedTab">
-      <ChampionsTab :cards="selectedCards" @card-selected="removeFromSelected" :title="'Composition'" :searchTerm="''"/>
+      <ChampionsTab class="Tab2" :cards="selectedCards" @card-selected="removeFromSelected" :title="'Composition'" :searchTerm="''"/>
       <div class="ActiveTraits">
         <h3>Traits</h3>
         <div class="TraitsContainer">
-          <div class="Traits" v-for="(count, trait) in traitCounts" :key="trait">
-            <img :src="traitIconUrl + convertTraitPng(traits.find(t => t.name === trait).icon)" alt="trait icon">
-            {{ trait }} : {{ count }}&nbsp;&nbsp;|&nbsp;&nbsp;
-            <span v-if="traits.find(t => t.name === trait).effects">
-              {{ traits.find(t => t.name === trait).effects.map(effect => effect.minUnits).join(' > ') }}
-            </span>
+          <div class="Traits" v-for="(count, trait) in sortedTraitCounts" :key="trait" :class="{ 'trait-inactive': !isTraitActive(trait, count) }">
+            <img class="TraitImg" :src="traitIconUrl + convertTraitPng(traits.find(t => t.name === trait).icon)" alt="trait icon">
+            {{ trait }} : {{ count }} / {{ getNextTraitMinUnits(trait, count) }}
           </div>
         </div>
       </div>
@@ -52,37 +49,58 @@ export default {
     }
   },
   created: function() {
-    this.retrieveTftData()
+    this.retrieveTftData();
   },
   computed: {
     filteredCards() {
-      return this.cards.filter(card => card.name.toLowerCase().includes(this.searchTerm.toLowerCase()))
+      return this.cards.filter(card => card.name.toLowerCase().includes(this.searchTerm.toLowerCase()));
     },
     traitCounts() {
-      const counts = {}
+      const counts = {};
       for (let trait of this.activeTraits) {
-        counts[trait] = (counts[trait] || 0) + 1
+        counts[trait] = (counts[trait] || 0) + 1;
       }
-      return counts
+      return counts;
+    },
+    sortedTraitCounts() {
+      return Object.entries(this.traitCounts)
+        .sort((a, b) => {
+          const isActiveA = this.isTraitActive(a[0], a[1]);
+          const isActiveB = this.isTraitActive(b[0], b[1]);
+          if (isActiveA === isActiveB) {
+            return 0;
+          } else if (isActiveA) {
+            return -1;
+          } else {
+            return 1;
+          }
+        })
+        .reduce((obj, [trait, count]) => {
+          obj[trait] = count;
+          return obj;
+        }, {});
     }
   },
   methods: {
     async retrieveTftData() {
-      this.tftData = await getTftData()
-      this.cards = this.tftData["sets"]["8"]["champions"]
-      this.traits = this.tftData["sets"]["8"]["traits"]
-      this.orderCardsByName()
+      this.tftData = await getTftData();
+      this.cards = this.tftData["sets"]["8"]["champions"];
+      this.traits = this.tftData["sets"]["8"]["traits"];
+      this.orderCardsByName();
     },
     convertTraitPng(file) {
       file = file.substr(0, file.indexOf(".")) + ".png";
       return file.toLowerCase();
     },
     addToSelected(index) {
-      this.cards[index]["traits"].forEach(element => {
-        this.activeTraits.push(element)
-      });
-      this.selectedCards.push(this.cards[index])
-      this.cards.splice(index, 1)
+      if (this.selectedCards.length < 28)
+      {
+        this.cards[index]["traits"].forEach(element => {
+          this.activeTraits.push(element);
+        });
+        this.selectedCards.push(this.cards[index]);
+        this.cards.splice(index, 1);
+      }
     },
     removeFromSelected(index) {
       const card = this.selectedCards[index];
@@ -92,22 +110,34 @@ export default {
           this.activeTraits.splice(traitIndex, 1);
         }
       });
-      this.cards.push(this.selectedCards[index])
-      this.selectedCards.splice(index, 1)
+      this.cards.push(this.selectedCards[index]);
+      this.selectedCards.splice(index, 1);
       if (this.sortBy === 'name') {
-        this.orderCardsByName()
+        this.orderCardsByName();
       } else {
-        this.orderCardsByName()
-        this.orderCardsByCost()
+        this.orderCardsByName();
+        this.orderCardsByCost();
       }
     },
     orderCardsByName() {
-      this.cards.sort((a, b) => a.name.localeCompare(b.name))
-      this.sortBy = 'name'
+      this.cards.sort((a, b) => a.name.localeCompare(b.name));
+      this.sortBy = 'name';
     },
     orderCardsByCost() {
-      this.cards.sort((a, b) => a.cost - b.cost)
-      this.sortBy = 'cost'
+      this.cards.sort((a, b) => a.cost - b.cost);
+      this.sortBy = 'cost';
+    },
+    getNextTraitMinUnits(trait, currentCount) {
+      const traitEffects = this.traits.find(t => t.name === trait).effects;
+      const nextEffect = traitEffects.find(e => e.minUnits > currentCount);
+      return nextEffect ? nextEffect.minUnits : traitEffects[traitEffects.length - 1].minUnits;
+    },
+    isTraitActive(trait, count) {
+      const traitData = this.traits.find(t => t.name === trait);
+      if (traitData.name === "Ace") {
+        return traitData.effects.some(effect => count === effect.minUnits);
+      }
+      return count >= traitData.effects[0].minUnits;
     }
   }
 }
@@ -145,6 +175,11 @@ body{
   grid-template-columns: 1fr 1fr;
 }
 
+.Buttons {
+  display: flex;
+  align-items: center; /* vertically center items */
+}
+
 .Buttons button.active {
   background-color: #444;
 }
@@ -155,8 +190,8 @@ button {
   background-color: rgb(27, 37, 39);
   color: white;
   padding: 0.5em 1em;
-  margin-right: 1em;
   font-size: 2rem;
+  white-space: nowrap;
 }
 
 button:hover {
@@ -169,31 +204,42 @@ input {
   color: white;
   font-family: 'Montserrat', sans-serif;
   font-size: 2rem;
-  padding: 0.5em;
-  padding-right: 2em;
+  padding: 0.5em 1em;
+  width: 100%;
 }
 
-.Buttons {
-  position: relative;
+.AllChampionsTab {
+  margin-left: 2em;
+  margin-right: 1em;
+}
+
+.SelectedTab {
+  margin-left: 1em;
+  margin-right: 2em;
 }
 
 .search-clear {
   font-family: 'Montserrat', sans-serif;
-  position: absolute;
-  top: 50%;
-  right: 100px;
-  transform: translateY(-50%);
-  cursor: pointer;
-  font-size: 2rem;
 }
 
 .TraitsContainer {
-  justify-content: center;
-  margin-left: 1em;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
 }
 
 .Traits {
+  border: 0.1em solid rgb(255, 255, 255);
   display: flex;
-  align-items: center;
+  font-size: 1.5rem;
+  padding: 0.5em;
+  margin-bottom: 0.5em;
+}
+
+.trait-inactive {
+    opacity: 0.5;
+  }
+
+.TraitImg {
+  margin-right: 0.5em;
 }
 </style>
