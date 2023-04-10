@@ -71,8 +71,8 @@ export default {
         .sort((a, b) => {
           const traitA = this.traits.find(t => t.name === a[0]);
           const traitB = this.traits.find(t => t.name === b[0]);
-          const effectA = traitA.effects.find(e => e.minUnits <= a[1]) || {};
-          const effectB = traitB.effects.find(e => e.minUnits <= b[1]) || {};
+          const effectA = traitA.effects.filter(e => e.minUnits <= a[1]).sort((a, b) => b.minUnits - a.minUnits)[0] || {};
+          const effectB = traitB.effects.filter(e => e.minUnits <= b[1]).sort((a, b) => b.minUnits - a.minUnits)[0] || {};
           const styleA = effectA.style;
           const styleB = effectB.style;
 
