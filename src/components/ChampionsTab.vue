@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h3>{{ title }}</h3>
+    <h1>{{ title }}</h1>
     <div class="ChampionsTab">
       <div class = "Card" v-for="(champion, index) in cards" :key="champion.id">
         <ChampionCard v-if="cards[index]?.traits.length !== 0"
@@ -24,7 +24,7 @@ export default {
   },
   data() {
     return {
-      iconUrl: "https://raw.communitydragon.org/13.5/game/"
+      iconUrl: "https://raw.communitydragon.org/13.6/game/"
     }
   },
   props: {
@@ -34,8 +34,15 @@ export default {
   },
   methods: {
     convertPng(file) {
-      file = file.substr(0, file.indexOf(".")) + "_square.tft_set8.png";
-      return file.toLowerCase();
+      let file1, file2;
+      file1 = file.substr(0, file.indexOf("."));
+      file2 = file.substring(file.indexOf(".") + 1);
+      if (file2 == "TFT_Set8_Stage2.dds")
+      {
+        return file1.toLowerCase() + "_mobile.tft_set8_stage2.png";
+      } else {
+        return file1.toLowerCase() + "_square.tft_set8.png";
+      }
     },
     selectCard(index) {
       this.$emit('card-selected', index)
@@ -55,9 +62,5 @@ export default {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-}
-
-.Card:hover {
-  opacity: 0.6;
 }
 </style>

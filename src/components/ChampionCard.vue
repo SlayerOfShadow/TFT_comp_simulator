@@ -39,13 +39,17 @@ export default {
 .ChampionCard {
   width: 4rem;
   height: 4rem;
-  margin: 0.3rem;
-  border: 0.05em solid rgb(33, 44, 48);
+  margin: 0.6em;
+  border: 0.05em solid;
 }
 
 img {
   width: 100%;
   height: 100%;
+}
+
+img:hover {
+  opacity: 0.5;
 }
 
 </style>
