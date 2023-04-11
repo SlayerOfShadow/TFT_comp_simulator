@@ -7,24 +7,28 @@
       <ChampionsTab class="Tab1" :cards="cards" @card-selected="addToSelected" :title="'Champions'" :searchTerm="searchTerm"/>
       <div class="Buttons">
         <button :class="{ active: sortBy === 'name' }" @click="orderCardsByName">A-Z</button>
-        <button :class="{ active: sortBy === 'cost' }" @click="orderCardsByCost">Cost</button>
+        <button :class="{ active: sortBy === 'cost' }" @click="orderCardsByCost">Cost &#8595;</button>
         <input v-model="searchTerm" placeholder="Search champions...">
         <span class="search-clear" v-if="searchTerm" @click="searchTerm = ''">X</span>
       </div>
     </div>
-    <div class="SelectedTab">
+    <div class="SelectedTab" ref="selectedTab">
       <ChampionsTab class="Tab2" :cards="selectedCards" @card-selected="removeFromSelected" :title="'Composition'" :searchTerm="''"/>
       <div class="SelectedTabButtons">
         <button class="ClearButton" @click="removeAllFromSelected">Clear composition</button>
         <div class="SelectedChampionsCount">{{ selectedCards.length }} / 10</div>
+        <button @click="saveSelectedTabAsImage">Save as PNG</button>
       </div>
       <div class="ActiveTraits">
         <h1>Traits</h1>
-        <div class="TraitsContainer">
+        <div class="TraitsContainer" v-if="selectedCards.length > 0">
           <div class="Traits" v-for="(count, trait) in sortedTraitCounts" :key="trait" :class="{ 'trait-inactive': !isTraitActive(trait, count) }" :style="{ borderColor: isTraitActive(trait, count) ? getTraitBorderColor(trait, count) : 'rgb(255, 255, 255)' }">
             <img class="TraitImg" :src="traitIconUrl + convertTraitPng(traits.find(t => t.name === trait).icon)" alt="trait icon">
             {{ trait }} : {{ count }} / {{ getNextTraitMinUnits(trait, count) }}
           </div>
+        </div>
+        <div v-else>
+          <p class="NoTraits">No active trait</p>
         </div>
       </div>
     </div>
@@ -143,8 +147,8 @@ export default {
     },
     removeAllFromSelected() {
       for (let i = this.selectedCards.length - 1; i >= 0; i--) {
-    this.removeFromSelected(i);
-  }
+        this.removeFromSelected(i);
+      }
     },
     orderCardsByName() {
       this.cards.sort((a, b) => a.name.localeCompare(b.name));
@@ -194,6 +198,28 @@ export default {
         default:
           return 'rgb(255,255,255)'; // White
       }
+    },
+    saveSelectedTabAsImage() {
+      // Get the reference to the SelectedTab component
+      const selectedTab = this.$refs.selectedTab;
+
+      // Use html2canvas library to take a screenshot of the SelectedTab
+      html2canvas(selectedTab).then((canvas) => {
+        // Convert the canvas to a PNG image data URL
+        const dataUrl = canvas.toDataURL("image/png");
+
+        // Create a link element to download the image
+        const link = document.createElement("a");
+        link.download = "composition.png";
+        link.href = dataUrl;
+
+        // Add the link to the document and click it to initiate download
+        document.body.appendChild(link);
+        link.click();
+
+        // Remove the link from the document
+        document.body.removeChild(link);
+      });
     }
   }
 }
@@ -250,12 +276,13 @@ body{
     margin-left: 2em;
     margin-right: 2em;
   }
-
   .SelectedTab {
     margin-left: 2em;
     margin-right: 2em;
   }
-
+  #logo {
+    width: 400px;
+  }
 }
 
 button {
@@ -371,5 +398,14 @@ button:hover {
 
 .TraitImg {
   margin-right: 0.5em;
+}
+
+.NoTraits {
+  padding: 1em;
+  border: 0.1em solid rgb(255, 255, 255);
+  background-color: rgb(27, 37, 39);
+  filter: drop-shadow(5px 5px 5px #222);
+  font-size: 1.5rem;
+  opacity: 0.3;
 }
 </style>
