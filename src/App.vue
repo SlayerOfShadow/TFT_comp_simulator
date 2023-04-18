@@ -45,8 +45,8 @@ export default {
   },
   data() {
     return {
-      tftData: [], 
-      cards: [], 
+      tftData: [],
+      cards: [],
       selectedCards: [],
       searchTerm: '',
       traits: [],
@@ -113,6 +113,20 @@ export default {
       this.tftData = await getTftData();
       this.cards = this.tftData["sets"]["8"]["champions"];
       this.traits = this.tftData["sets"]["8"]["traits"];
+      
+      const cardsFromStorage = JSON.parse(localStorage.getItem('cards'));
+      const selectedCardsFromStorage = JSON.parse(localStorage.getItem('selectedCards'));
+      const activeTraitsFromStorage = JSON.parse(localStorage.getItem('activeTraits'));
+      if (cardsFromStorage) {
+        this.cards = cardsFromStorage;
+      }
+      if (selectedCardsFromStorage) {
+        this.selectedCards = selectedCardsFromStorage;
+      }
+      if (activeTraitsFromStorage) {
+        this.activeTraits = activeTraitsFromStorage;
+      }
+
       this.orderCardsByName();
     },
     convertTraitPng(file) {
@@ -127,6 +141,10 @@ export default {
         });
         this.selectedCards.push(this.cards[index]);
         this.cards.splice(index, 1);
+
+        localStorage.setItem('cards', JSON.stringify(this.cards));
+        localStorage.setItem('selectedCards', JSON.stringify(this.selectedCards));
+        localStorage.setItem('activeTraits', JSON.stringify(this.activeTraits));
       }
     },
     removeFromSelected(index) {
@@ -145,6 +163,10 @@ export default {
         this.orderCardsByName();
         this.orderCardsByCost();
       }
+
+      localStorage.setItem('cards', JSON.stringify(this.cards));
+      localStorage.setItem('selectedCards', JSON.stringify(this.selectedCards));
+      localStorage.setItem('activeTraits', JSON.stringify(this.activeTraits));
     },
     removeAllFromSelected() {
       for (let i = this.selectedCards.length - 1; i >= 0; i--) {
