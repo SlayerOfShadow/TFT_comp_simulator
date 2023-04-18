@@ -1,11 +1,11 @@
 <template>
-  <div>
+  <header>
     <img src="./assets/logo_tft.png" alt="logo" id="logo">
-  </div>
+  </header>
   <div class="Tabs">
-    <div class="AllChampionsTab">
-      <ChampionsTab class="Tab1" :cards="cards" @card-selected="addToSelected" :title="'Champions'" :searchTerm="searchTerm"/>
-      <div class="Buttons">
+    <div class="SelectTab">
+      <ChampionsTab class="Tab1" :cards="cards" @card-selected="addToSelected" :title="'CHAMPIONS'" :searchTerm="searchTerm"/>
+      <div class="SelectTabButtons">
         <button :class="{ active: sortBy === 'name' }" @click="orderCardsByName">A-Z</button>
         <button :class="{ active: sortBy === 'cost' }" @click="orderCardsByCost">Cost &#8595;</button>
         <input v-model="searchTerm" placeholder="Search champions...">
@@ -13,14 +13,13 @@
       </div>
     </div>
     <div class="SelectedTab" ref="selectedTab">
-      <ChampionsTab class="Tab2" :cards="selectedCards" @card-selected="removeFromSelected" :title="'Composition'" :searchTerm="''"/>
+      <ChampionsTab class="Tab2" :cards="selectedCards" @card-selected="removeFromSelected" :title="'COMPOSITION'" :searchTerm="''"/>
       <div class="SelectedTabButtons">
         <button class="ClearButton" @click="removeAllFromSelected">Clear composition</button>
         <div class="SelectedChampionsCount">{{ selectedCards.length }} / 10</div>
-        <button @click="saveSelectedTabAsImage">Save as PNG</button>
       </div>
       <div class="ActiveTraits">
-        <h1>Traits</h1>
+        <h1>TRAITS</h1>
         <div class="TraitsContainer" v-if="selectedCards.length > 0">
           <div class="Traits" v-for="(count, trait) in sortedTraitCounts" :key="trait" :class="{ 'trait-inactive': !isTraitActive(trait, count) }" :style="{ borderColor: isTraitActive(trait, count) ? getTraitBorderColor(trait, count) : 'rgb(255, 255, 255)' }">
             <img class="TraitImg" :src="traitIconUrl + convertTraitPng(traits.find(t => t.name === trait).icon)" alt="trait icon">
@@ -28,7 +27,7 @@
           </div>
         </div>
         <div v-else>
-          <p class="NoTraits">No active trait</p>
+          <p class="NoTraits">&#9888; <br> No active trait</p>
         </div>
       </div>
     </div>
@@ -80,16 +79,18 @@ export default {
           const styleA = effectA.style;
           const styleB = effectB.style;
 
-          // Order by style in descending order
           if (styleA && styleB) {
-            if (styleA > styleB) {
+            if (traitA.name === 'Threat') {
+              return 1;
+            } else if (traitB.name === 'Threat') {
+              return -1;
+            } else if (styleA > styleB) {
               return -1;
             } else if (styleA < styleB) {
               return 1;
             }
           }
 
-          // Otherwise, sort by whether the trait is active
           const isActiveA = this.isTraitActive(a[0], a[1]);
           const isActiveB = this.isTraitActive(b[0], b[1]);
 
@@ -179,7 +180,7 @@ export default {
       if (!traitObject) {
         return null;
       }
-      const traitEffects = traitObject.effects.slice().reverse(); // Reverse the array of effects
+      const traitEffects = traitObject.effects.slice().reverse();
       const currentEffect = traitEffects.find(e => e.minUnits <= currentCount);
       if (!currentEffect) {
         return null;
@@ -198,28 +199,6 @@ export default {
         default:
           return 'rgb(255,255,255)'; // White
       }
-    },
-    saveSelectedTabAsImage() {
-      // Get the reference to the SelectedTab component
-      const selectedTab = this.$refs.selectedTab;
-
-      // Use html2canvas library to take a screenshot of the SelectedTab
-      html2canvas(selectedTab).then((canvas) => {
-        // Convert the canvas to a PNG image data URL
-        const dataUrl = canvas.toDataURL("image/png");
-
-        // Create a link element to download the image
-        const link = document.createElement("a");
-        link.download = "composition.png";
-        link.href = dataUrl;
-
-        // Add the link to the document and click it to initiate download
-        document.body.appendChild(link);
-        link.click();
-
-        // Remove the link from the document
-        document.body.removeChild(link);
-      });
     }
   }
 }
@@ -228,82 +207,82 @@ export default {
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300&display=swap');
 
-html,body{
+#app {
+  font-family: 'Montserrat', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-align: center;
+  color: white;
+}
+
+html,body {
   margin: 0;
   padding: 0;
 }
 
-body{
-  background-color: rgb(41, 55, 59);
-}
-
-#app {
-  font-family: 'Montserrat', sans-serif;
-  font-size: 1rem;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  margin-top: 2em;
-  color: white;
+header {
+  background-color: rgb(40, 50, 70);
+  border-bottom: 1px solid white;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+  padding: 30px;
 }
 
 #logo {
-  width: 500px;
-  filter: drop-shadow(5px 5px 5px #222);
+  width: 350px;
+  filter: drop-shadow(2px 2px 5px #000000);
+}
+
+body{
+  background-color: rgb(30, 40, 60);
+}
+
+h1 {
+  margin: 40px;
 }
 
 .Tabs {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  filter: drop-shadow(5px 5px 5px #222);
+  filter: drop-shadow(2px 2px 5px #000000);
 }
 
-.AllChampionsTab {
-  margin-left: 2em;
-  margin-right: 1em;
-}
-
-.SelectedTab {
-  margin-left: 1em;
+.SelectTab {
+  margin-left: 4em;
   margin-right: 2em;
 }
 
-@media (max-width: 1000px) {
-  .Tabs {
-    grid-template-columns: 1fr;
-  }
-  .AllChampionsTab {
-    margin-left: 2em;
-    margin-right: 2em;
-  }
-  .SelectedTab {
-    margin-left: 2em;
-    margin-right: 2em;
-  }
-  #logo {
-    width: 400px;
-  }
+.SelectedTab {
+  margin-left: 2em;
+  margin-right: 4em;
 }
 
 button {
   font-family: 'Montserrat', sans-serif;
-  border: 0.25em solid rgb(33, 44, 48);
-  background-color: rgb(27, 37, 39);
+  border: 0.2em solid rgb(40, 50, 70);
+  background-color: rgb(60, 70, 90);
   color: white;
   padding: 0.5em 1em;
   font-size: 1.5rem;
   white-space: nowrap;
 }
 
-.Buttons {
+button:hover {
+  background-color: rgb(80, 90, 110);
+}
+
+.SelectTabButtons {
   display: flex;
-  align-items: center; /* vertically center items */
+  align-items: center;
   position: relative;
 }
 
+.SelectTabButtons button.active {
+  background-color: rgb(90, 100, 120);
+}
+
 input {
-  border: 0.25em solid rgb(33, 44, 48);
-  background-color: rgb(27, 37, 39);
+  border: 0.2em solid rgb(40, 50, 70);
+  background-color: rgb(30, 40, 60);
   color: white;
   font-family: 'Montserrat', sans-serif;
   font-size: 1.5rem;
@@ -312,32 +291,6 @@ input {
   padding-left: 0.5em;
   padding-right: 2em;
   width: 100%;
-  position: relative;
-}
-
-.Buttons button.active {
-  background-color: #444;
-}
-
-.SelectedTabButtons {
-  display: flex;
-  align-items: center; /* vertically center items */
-  font-size: 1.5rem;
-}
-
-.ClearButton {
-  width: 100%;
-}
-
-.SelectedChampionsCount {
-  white-space: nowrap;
-  background-color: rgb(33, 44, 48);
-  padding: 0.5em 1em;
-  border: 0.25em solid rgb(33, 44, 48);
-}
-
-button:hover {
-  background-color: #333;
 }
 
 .search-clear {
@@ -350,35 +303,46 @@ button:hover {
   cursor: pointer;
 }
 
+.SelectedTabButtons {
+  display: flex;
+  align-items: center;
+  font-size: 1.5rem;
+}
+
+.ClearButton {
+  width: 100%;
+}
+
+.SelectedChampionsCount {
+  white-space: nowrap;
+  background-color: rgb(40, 50, 70);
+  padding: 0.5em 1em;
+  border: 0.2em solid rgb(40, 50, 70);
+}
+
 .TraitsContainer {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
-  gap: 1em; /* Add a gap of 1em between the items */
-  max-height: 360px;
+  gap: 1em;
+  max-height: 290px;
   overflow-y: auto;
-  padding-right: 10px; /* add 10px padding to the right */
-}
-
-@media (max-width: 1000px) {
-  .TraitsContainer {
-    grid-template-columns: 1fr 1fr;
-  }
+  padding-right: 10px;
 }
 
 .TraitsContainer::-webkit-scrollbar {
-  width: 0.5em;
+  width: 0.2em;
 }
 
 .TraitsContainer::-webkit-scrollbar-track {
-  background: rgb(27, 37, 39);
+  background: rgb(30, 40, 60);
 }
 
 .TraitsContainer::-webkit-scrollbar-thumb {
-  background: #888;
+  background: white;
 }
 
 .TraitsContainer::-webkit-scrollbar-thumb:hover {
-  background: #555;
+  background: #777777;
 }
 
 .Traits {
@@ -387,9 +351,9 @@ button:hover {
   font-size: 1rem;
   padding: 0.5em;
   margin-bottom: 0.5em;
-  background-color: rgb(27, 37, 39);
-  filter: drop-shadow(5px 5px 5px #222);
-  align-items: center; /* Add this line to vertically align the contents */
+  background-color: rgb(30, 40, 60);
+  filter: drop-shadow(1px 1px 1px #000000);
+  align-items: center;
 }
 
 .trait-inactive {
@@ -401,11 +365,36 @@ button:hover {
 }
 
 .NoTraits {
-  padding: 1em;
-  border: 0.1em solid rgb(255, 255, 255);
-  background-color: rgb(27, 37, 39);
-  filter: drop-shadow(5px 5px 5px #222);
   font-size: 1.5rem;
   opacity: 0.3;
 }
+
+/* RESPONSIVE */
+
+@media (max-width: 1320px) {
+  .Tabs {
+    grid-template-columns: 1fr;
+  }
+  .SelectTab {
+    margin-left: 3em;
+    margin-right: 3em;
+  }
+  .SelectedTab {
+    margin-left: 3em;
+    margin-right: 3em;
+  }
+}
+
+@media (max-width: 1000px) {
+  .TraitsContainer {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .TraitsContainer {
+    grid-template-columns: 1fr;
+  }
+}
+
 </style>

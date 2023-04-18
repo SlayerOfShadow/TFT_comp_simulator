@@ -54,11 +54,10 @@ export default {
 }
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 .ChampionsTab {
-  border: 0.25em solid rgb(33, 44, 48);
-  background-color: rgb(27, 37, 39);
+  border: 0.2em solid rgb(40, 50, 70);
+  background-color: rgb(20, 30, 50);
   display: flex;
   flex-wrap: wrap;
   justify-content: center;

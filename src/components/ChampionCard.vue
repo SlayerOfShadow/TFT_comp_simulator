@@ -14,7 +14,6 @@ export default {
 	},
   computed: {
     getBorderColor() {
-      // Set border color based on the cost prop
       switch(this.cost) {
         case 1:
           return 'rgb(105,105,105)'; // Grey
@@ -34,7 +33,6 @@ export default {
 }
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 .ChampionCard {
   width: 4rem;
