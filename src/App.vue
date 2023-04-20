@@ -417,6 +417,17 @@ input {
   .TraitsContainer {
     grid-template-columns: 1fr;
   }
+  .SelectTab {
+    margin: 0;
+  }
+  .SelectedTab {
+    margin: 0;
+  }
+  #logo {
+    width: 250px;
+  }
+  button {
+    padding: 0.5em 0.5em;
+  }
 }
-
 </style>
