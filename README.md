@@ -1,5 +1,7 @@
 # tft_comp_simulator
 
+You can find the project online here : https://tft-comp-simulator.netlify.app/
+
 ## Project setup
 ```
 npm install
