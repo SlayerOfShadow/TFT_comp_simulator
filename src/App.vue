@@ -59,9 +59,6 @@ export default {
     this.retrieveTftData();
   },
   computed: {
-    filteredCards() {
-      return this.cards.filter(card => card.name.toLowerCase().includes(this.searchTerm.toLowerCase()));
-    },
     traitCounts() {
       const counts = {};
       for (let trait of this.activeTraits) {
